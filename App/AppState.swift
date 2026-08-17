@@ -117,7 +117,28 @@ final class AppState: ObservableObject {
         if isRecording { await finishRecording() } else { await beginDictation() }
     }
 
-    func showSettings() { NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) }
+    func showSettings() {
+        activateAndBringForward(windowTitle: "Voice Writing Assistant Settings")
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        bringWindowToFront(matching: "Settings")
+    }
+
+    func bringHistoryToFront() { activateAndBringForward(windowTitle: "History"); bringWindowToFront(matching: "History") }
+    func bringDictionaryToFront() { activateAndBringForward(windowTitle: "Personal Dictionary"); bringWindowToFront(matching: "Personal Dictionary") }
+
+    private func activateAndBringForward(windowTitle: String) {
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.windows.first(where: { $0.title == windowTitle })?.makeKeyAndOrderFront(nil)
+    }
+
+    private func bringWindowToFront(matching title: String) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
+            guard let window = NSApp.windows.first(where: { $0.title.localizedCaseInsensitiveContains(title) }) else { return }
+            NSApp.activate(ignoringOtherApps: true)
+            window.makeKeyAndOrderFront(nil)
+            window.orderFrontRegardless()
+        }
+    }
 
     func setFloatingMenuHover(_ hovering: Bool) {
         floatingMenuTask?.cancel()
