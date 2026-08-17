@@ -14,7 +14,7 @@ Voice Writing Assistant is a native, local-first macOS voice-writing assistant. 
 
 ## Build and run
 
-Open [VoiceWritingAssistant.xcodeproj](VoiceWritingAssistant.xcodeproj) in Xcode. Swift Package Manager resolves WhisperKit from `argmax-oss-swift`; on first transcription WhisperKit downloads the selected local model. Run the `VoiceWritingAssistant` scheme and grant Microphone permission. Grant Accessibility permission for automatic paste and selected-text capture.
+Open [VoiceWritingAssistant.xcodeproj](VoiceWritingAssistant.xcodeproj) in Xcode. Swift Package Manager resolves WhisperKit from `argmax-oss-swift`; on first transcription WhisperKit downloads the selected local model. Run the `VoiceWritingAssistant` scheme and grant Microphone permission. Grant Accessibility permission for automatic paste and selected-text capture. See [macOS configuration rules](docs/MACOS_CONFIGURATION.md) before building or signing a local package.
 
 ```sh
 xcodebuild -project VoiceWritingAssistant.xcodeproj -scheme VoiceWritingAssistant -configuration Debug CODE_SIGNING_ALLOWED=NO build
@@ -24,7 +24,7 @@ xcodebuild -project VoiceWritingAssistant.xcodeproj -scheme VoiceWritingAssistan
 
 WhisperKit runs on-device. Its models are local after download and the selected model is retained and warmed across dictations. Parakeet v3 is embedded via FluidAudio, used first for English in Automatic mode, and retains a warmed local model. `whisper-cli` is supported when whisper.cpp is installed and on `PATH`.
 
-Codex uses only the existing `codex` executable and invokes `codex exec --ephemeral --sandbox read-only` with closed stdin, bounded to 20 seconds. It does not read tokens, cookies, or credential files. Codex processing may use the user's Codex/ChatGPT service and is therefore not fully offline.
+Codex uses only the existing `codex` executable and invokes `codex exec --ephemeral --skip-git-repo-check --sandbox read-only` with closed stdin. It uses the configured processing timeout and does not read tokens, cookies, or credential files. Codex processing may use the user's Codex/ChatGPT service and is therefore not fully offline.
 
 Ollama uses only the configured endpoint (default `http://127.0.0.1:11434`) and its local `/api/chat` endpoint. Enter a locally installed model in Settings.
 
