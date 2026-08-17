@@ -15,8 +15,8 @@ struct MenuBarView: View {
             Button("Cancel") { state.cancel() }.disabled(!state.dictationState.isBusy)
             if !state.rawTranscript.isEmpty { Divider(); Text("Last transcript").font(.caption).foregroundStyle(.secondary); Text(state.rawTranscript).lineLimit(3) }
             if !state.lastPasteMethod.isEmpty { Text(state.lastPasteMethod).font(.caption).foregroundStyle(.secondary) }
-            Button("History") { openWindow(id: "history") }
-            Button("Personal Dictionary") { openWindow(id: "dictionary") }
+            Button("History") { state.bringHistoryToFront(); openWindow(id: "history") }
+            Button("Personal Dictionary") { state.bringDictionaryToFront(); openWindow(id: "dictionary") }
             SettingsLink { Text("Settings…") }
             Divider()
             Button("Quit Voice Writing Assistant") { NSApplication.shared.terminate(nil) }

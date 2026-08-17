@@ -11,9 +11,11 @@ struct TextProcessorRouter {
         let services: [any TextProcessingService]
         switch settings.selectedTextProcessor {
         case .ruleBased: services = []
-        case .codexCLI, .ollama, .automatic:
-            // Fastest response deliberately races both AI engines. The chosen setting
-            // still controls diagnostics/preferences, but never blocks a faster answer.
+        case .codexCLI: services = [codex]
+        case .ollama: services = [ollama]
+        case .automatic:
+            // Only Automatic mode races both engines. Explicit choices must be
+            // respected, so users can verify or require a particular provider.
             services = [codex, ollama]
         }
         return AsyncStream { continuation in
