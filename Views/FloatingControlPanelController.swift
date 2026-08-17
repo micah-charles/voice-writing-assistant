@@ -28,7 +28,7 @@ final class FloatingControlPanelController {
     func hide() { panel.orderOut(nil) }
 
     func setMenuVisible(_ visible: Bool) {
-        let targetSize = visible ? NSSize(width: 430, height: 290) : NSSize(width: 70, height: 70)
+        let targetSize = visible ? NSSize(width: 650, height: 320) : NSSize(width: 70, height: 70)
         let previous = panel.frame
         let frame = NSRect(x: previous.maxX - targetSize.width, y: previous.maxY - targetSize.height, width: targetSize.width, height: targetSize.height)
         panel.setFrame(frame, display: true, animate: true)

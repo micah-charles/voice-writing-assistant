@@ -73,6 +73,16 @@ final class AppState: ObservableObject {
 
     var statusText: String { dictationState.displayText }
     var isRecording: Bool { dictationState == .recording }
+    var floatingStatusSymbol: String {
+        switch dictationState {
+        case .recording: return "waveform"
+        case .transcribing, .capturingContext: return "ellipsis"
+        case .processing, .normalizing: return "brain.head.profile"
+        case .pasting, .completed: return "checkmark"
+        case .failed: return "exclamationmark"
+        default: return "sparkles"
+        }
+    }
     var elapsedText: String { String(format: "%02d:%02d", elapsedSeconds / 60, elapsedSeconds % 60) }
     var menuBarSymbol: String {
         switch dictationState {
@@ -115,6 +125,18 @@ final class AppState: ObservableObject {
 
     func toggleFloatingDictation() async {
         if isRecording { await finishRecording() } else { await beginDictation() }
+    }
+
+    func beginFloatingPushToTalk() async {
+        guard dictationState.canStart else { return }
+        floatingMenuVisible = false
+        floatingControl.setMenuVisible(false)
+        await beginDictation()
+    }
+
+    func finishFloatingPushToTalk() async {
+        guard dictationState == .recording else { return }
+        await finishRecording()
     }
 
     func showSettings() {
