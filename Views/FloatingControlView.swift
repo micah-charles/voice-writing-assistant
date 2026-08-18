@@ -35,8 +35,20 @@ struct FloatingControlView: View {
         .onAppear { pulse = state.isRecording }
         .onChange(of: state.isRecording) { _, recording in withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) { pulse = recording } }
         .gesture(DragGesture(minimumDistance: 0)
-            .onChanged { _ in guard !isPressing else { return }; isPressing = true; Task { await state.beginFloatingPushToTalk() } }
-            .onEnded { _ in isPressing = false; Task { await state.finishFloatingPushToTalk() } })
+            .onChanged { _ in
+                guard !isPressing else { return }
+                isPressing = true
+                guard !state.floatingMenuVisible else { return }
+                Task { await state.beginFloatingPushToTalk() }
+            }
+            .onEnded { _ in
+                isPressing = false
+                if state.floatingMenuVisible {
+                    state.closeFloatingMenu()
+                } else {
+                    Task { await state.finishFloatingPushToTalk() }
+                }
+            })
         .help(state.isRecording ? "Release to stop recording" : "Hold to talk")
         .contextMenu { Button("Settings…") { state.showSettings() }; Toggle("Show floating record button", isOn: $state.settings.showFloatingControl); Divider(); Button("Quit Voice Writing Assistant") { NSApplication.shared.terminate(nil) } }
         .accessibilityLabel(state.isRecording ? "Release to stop recording" : "Hold to talk")

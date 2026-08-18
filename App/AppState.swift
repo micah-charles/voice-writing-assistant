@@ -172,6 +172,12 @@ final class AppState: ObservableObject {
         }
     }
 
+    func closeFloatingMenu() {
+        floatingMenuTask?.cancel()
+        floatingMenuVisible = false
+        floatingControl.setMenuVisible(false)
+    }
+
     func beginSelectedTextTransform() async {
         guard dictationState.canStart else { return }
         workflow = .selectedTransform

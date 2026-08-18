@@ -12,115 +12,124 @@ private enum FlowerRoot: String, CaseIterable, Identifiable {
 
     var symbol: String {
         switch self {
-        case .output: "globe"
-        case .style: "pencil"
-        case .processor: "cpu"
-        case .paste: "doc.on.clipboard"
-        case .results: "clock.arrow.circlepath"
-        case .settings: "gearshape"
+        case .output: "globe"; case .style: "pencil"; case .processor: "cpu"
+        case .paste: "doc.on.clipboard"; case .results: "clock.arrow.circlepath"; case .settings: "gearshape"
         }
     }
 
     var tint: Color {
         switch self {
-        case .output: .blue
-        case .style: .green
-        case .processor: .purple
-        case .paste: .orange
-        case .results: .yellow
-        case .settings: .gray
+        case .output: .blue; case .style: .green; case .processor: .purple
+        case .paste: .orange; case .results: .yellow; case .settings: .gray
         }
     }
 }
 
-/// A hover-first radial menu. Hovering explores a category; clicking a final petal changes a setting.
+/// A continuous hover path: fox hub → parent petal → outward child arc → click to apply.
 struct FloatingQuickMenu: View {
     @EnvironmentObject private var state: AppState
     @State private var selectedRoot: FlowerRoot?
     @State private var hoverTask: Task<Void, Never>?
 
-    private let radius: CGFloat = 124
+    private let rootRadius: CGFloat = 108
+    private let childRadius: CGFloat = 202
 
     var body: some View {
         ZStack {
-            ForEach(Array(FlowerRoot.allCases.enumerated()), id: \.element.id) { index, item in
-                mainPetal(item, index: index)
+            Circle()
+                .fill(.ultraThinMaterial)
+                .frame(width: 132, height: 132)
+                .overlay(Circle().stroke(.white.opacity(0.75), lineWidth: 1))
+
+            ForEach(Array(FlowerRoot.allCases.enumerated()), id: \.element.id) { index, root in
+                rootPetal(root, at: index)
             }
 
             if let selectedRoot {
-                fan(for: selectedRoot)
-                    .transition(.opacity.combined(with: .scale(scale: 0.88)))
+                childArc(for: selectedRoot)
+                    .transition(.opacity.combined(with: .scale(scale: 0.84)))
             }
         }
-        .frame(width: 430, height: 430)
-        .animation(.spring(duration: 0.22), value: selectedRoot)
+        .frame(width: 470, height: 470)
+        .animation(.spring(duration: 0.25, bounce: 0.18), value: selectedRoot)
+        .onExitCommand { state.closeFloatingMenu() }
     }
 
-    private func mainPetal(_ item: FlowerRoot, index: Int) -> some View {
-        let angle = CGFloat(index) * (.pi * 2 / CGFloat(FlowerRoot.allCases.count)) - .pi / 2
-        let x = cos(angle) * radius
-        let y = sin(angle) * radius
-        let isSelected = selectedRoot == item
+    private func rootPetal(_ root: FlowerRoot, at index: Int) -> some View {
+        let angle = rootAngle(index)
+        let isActive = selectedRoot == root
+        let isDimmed = selectedRoot != nil && !isActive
 
-        return Button {
-            select(item)
-        } label: {
-            VStack(spacing: 5) {
-                Image(systemName: item.symbol).font(.system(size: 19, weight: .semibold))
-                Text(item.rawValue).font(.system(size: 11, weight: .semibold)).multilineTextAlignment(.center)
-            }
-            .foregroundStyle(item.tint)
-            .frame(width: 94, height: 94)
-            .background(item.tint.opacity(isSelected ? 0.28 : 0.12), in: RoundedRectangle(cornerRadius: 26))
-            .overlay(RoundedRectangle(cornerRadius: 26).stroke(.white.opacity(0.82), lineWidth: 1))
-            .shadow(color: item.tint.opacity(0.12), radius: 8, y: 3)
+        return Button { select(root) } label: {
+            petalLabel(title: root.rawValue, symbol: root.symbol, tint: root.tint, selected: isActive)
+                .background(petalSurface(tint: root.tint, selected: isActive, angle: angle))
         }
         .buttonStyle(.plain)
-        .scaleEffect(selectedRoot == nil || isSelected ? 1 : 0.84)
-        .opacity(selectedRoot == nil || isSelected ? 1 : 0.34)
-        .offset(x: x, y: y)
-        .onHover { inside in scheduleSelection(item, inside: inside) }
-        .accessibilityLabel(item.rawValue.replacingOccurrences(of: "\n", with: " "))
+        .frame(width: 112, height: 128)
+        .offset(x: cos(angle) * rootRadius, y: sin(angle) * rootRadius)
+        .scaleEffect(isDimmed ? 0.82 : 1)
+        .opacity(isDimmed ? 0.25 : 1)
+        .onHover { inside in scheduleSelection(root, inside: inside) }
+        .accessibilityLabel(root.rawValue.replacingOccurrences(of: "\n", with: " "))
     }
 
-    @ViewBuilder private func fan(for root: FlowerRoot) -> some View {
-        let options = options(for: root)
-        ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
-            let count = max(options.count - 1, 1)
-            let angle = CGFloat(index) * (.pi * 0.86 / CGFloat(count)) - .pi / 2 - .pi * 0.43
-            let x = cos(angle) * 184
-            let y = sin(angle) * 184
-            Button { option.action() } label: {
-                VStack(spacing: 4) {
-                    Image(systemName: option.symbol).font(.system(size: 16, weight: .semibold))
-                    Text(option.title).font(.system(size: 10, weight: .semibold)).multilineTextAlignment(.center).lineLimit(2)
-                }
-                .foregroundStyle(root.tint)
-                .frame(width: 78, height: 78)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 22))
-                .overlay(RoundedRectangle(cornerRadius: 22).stroke(root.tint.opacity(0.25), lineWidth: 1))
+    @ViewBuilder private func childArc(for root: FlowerRoot) -> some View {
+        let values = options(for: root)
+        let parentAngle = rootAngle(FlowerRoot.allCases.firstIndex(of: root) ?? 0)
+        let spread = min(.pi * 0.92, .pi * 0.26 * CGFloat(max(values.count - 1, 1)))
+
+        ForEach(Array(values.enumerated()), id: \.element.id) { index, value in
+            let childAngle = values.count == 1
+                ? parentAngle
+                : parentAngle - spread / 2 + spread * CGFloat(index) / CGFloat(values.count - 1)
+
+            Button { value.action(); state.closeFloatingMenu() } label: {
+                petalLabel(title: value.title, symbol: value.symbol, tint: root.tint, selected: value.selected)
+                    .background(petalSurface(tint: root.tint, selected: value.selected, angle: childAngle))
             }
             .buttonStyle(.plain)
-            .offset(x: x, y: y)
-            .accessibilityLabel(option.title)
+            .frame(width: 96, height: 112)
+            .offset(x: cos(childAngle) * childRadius, y: sin(childAngle) * childRadius)
+            .accessibilityLabel(value.title)
         }
     }
 
-    private func select(_ item: FlowerRoot) {
-        if item == .settings {
-            state.showSettings()
-        } else {
-            selectedRoot = item
+    private func petalLabel(title: String, symbol: String, tint: Color, selected: Bool) -> some View {
+        VStack(spacing: 4) {
+            ZStack {
+                Image(systemName: symbol).font(.system(size: 17, weight: .semibold))
+                if selected { Image(systemName: "checkmark.circle.fill").font(.system(size: 12)).offset(x: 11, y: -8) }
+            }
+            Text(title).font(.system(size: 10.5, weight: .semibold)).multilineTextAlignment(.center).lineLimit(2)
         }
+        .foregroundStyle(tint)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(PetalShape())
     }
 
-    private func scheduleSelection(_ item: FlowerRoot, inside: Bool) {
+    private func petalSurface(tint: Color, selected: Bool, angle: CGFloat) -> some View {
+        PetalShape()
+            .fill(tint.opacity(selected ? 0.32 : 0.14))
+            .overlay(PetalShape().stroke(.white.opacity(0.9), lineWidth: 1))
+            .shadow(color: tint.opacity(selected ? 0.28 : 0.12), radius: selected ? 14 : 7, y: 3)
+            .rotationEffect(.radians(angle + .pi / 2))
+    }
+
+    private func rootAngle(_ index: Int) -> CGFloat {
+        CGFloat(index) * (.pi * 2 / CGFloat(FlowerRoot.allCases.count)) - .pi / 2
+    }
+
+    private func select(_ root: FlowerRoot) {
+        if root == .settings { state.showSettings() } else { selectedRoot = root }
+    }
+
+    private func scheduleSelection(_ root: FlowerRoot, inside: Bool) {
         hoverTask?.cancel()
         guard inside else { return }
         hoverTask = Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(280))
+            try? await Task.sleep(for: .milliseconds(250))
             guard !Task.isCancelled else { return }
-            select(item)
+            select(root)
         }
     }
 
@@ -128,29 +137,25 @@ struct FloatingQuickMenu: View {
         switch root {
         case .output:
             [
-                .init("Keep original", "doc.text", selected: state.settings.outputLanguage == .preserveSpokenLanguage) { state.settings.outputLanguage = .preserveSpokenLanguage },
-                .init("English", "character.book.closed", selected: state.settings.outputLanguage == .english) { state.settings.outputLanguage = .english },
-                .init("Cantonese written", "text.bubble", selected: state.settings.outputLanguage == .cantoneseWritten) { state.settings.outputLanguage = .cantoneseWritten },
-                .init("Formal Traditional", "character", selected: state.settings.outputLanguage == .formalTraditionalChinese) { state.settings.outputLanguage = .formalTraditionalChinese }
+                .init("Keep\noriginal", "doc.text", state.settings.outputLanguage == .preserveSpokenLanguage) { state.settings.outputLanguage = .preserveSpokenLanguage },
+                .init("English", "character.book.closed", state.settings.outputLanguage == .english) { state.settings.outputLanguage = .english },
+                .init("Written\nCantonese", "text.bubble", state.settings.outputLanguage == .cantoneseWritten) { state.settings.outputLanguage = .cantoneseWritten },
+                .init("Traditional\nChinese", "character", state.settings.outputLanguage == .formalTraditionalChinese) { state.settings.outputLanguage = .formalTraditionalChinese }
             ]
         case .style:
-            ProcessingStyle.allCases.map { style in .init(style.displayName, "pencil", selected: state.settings.processingStyle == style) { state.settings.processingStyle = style } }
+            ProcessingStyle.allCases.map { style in .init(style.displayName, "pencil", state.settings.processingStyle == style) { state.settings.processingStyle = style } }
         case .processor:
-            TextProcessorProvider.allCases.map { provider in .init(provider.displayName, "cpu", selected: state.settings.selectedTextProcessor == provider) { state.settings.selectedTextProcessor = provider } }
+            TextProcessorProvider.allCases.map { provider in .init(provider.displayName, "cpu", state.settings.selectedTextProcessor == provider) { state.settings.selectedTextProcessor = provider } }
         case .paste:
             [
-                .init(state.settings.autoPaste ? "Auto-paste on" : "Auto-paste off", "doc.on.clipboard", selected: state.settings.autoPaste) { state.settings.autoPaste.toggle() },
-                .init(state.settings.reviewBeforePaste ? "Review on" : "Review before paste", "eye", selected: state.settings.reviewBeforePaste) { state.settings.reviewBeforePaste.toggle() },
-                .init(state.settings.restoreClipboard ? "Restore clipboard on" : "Restore clipboard", "arrow.uturn.backward", selected: state.settings.restoreClipboard) { state.settings.restoreClipboard.toggle() }
+                .init(state.settings.autoPaste ? "Auto-paste\non" : "Auto-paste\noff", "doc.on.clipboard", state.settings.autoPaste) { state.settings.autoPaste.toggle() },
+                .init(state.settings.reviewBeforePaste ? "Review\non" : "Review before\npaste", "eye", state.settings.reviewBeforePaste) { state.settings.reviewBeforePaste.toggle() },
+                .init(state.settings.restoreClipboard ? "Restore\nclipboard on" : "Restore\nclipboard", "arrow.uturn.backward", state.settings.restoreClipboard) { state.settings.restoreClipboard.toggle() }
             ]
         case .results:
             state.alternativeResults.isEmpty
-                ? [.init("No alternate\nresult yet", "clock", selected: false) {}]
-                : state.alternativeResults.map { result in
-                    .init("Use \(result.provider)\n\(String(format: "%.1fs", result.latency))", "checkmark", selected: false) {
-                        Task { await state.replaceLastPaste(with: result) }
-                    }
-                }
+                ? [.init("No alternate\nresult yet", "clock", false) {}]
+                : state.alternativeResults.map { result in .init("Use \(result.provider)\n\(String(format: "%.1fs", result.latency))", "checkmark", false) { Task { await state.replaceLastPaste(with: result) } } }
         case .settings:
             []
         }
@@ -164,10 +169,40 @@ private struct FlowerOption: Identifiable {
     let selected: Bool
     let action: () -> Void
 
-    init(_ title: String, _ symbol: String, selected: Bool, action: @escaping () -> Void) {
+    init(_ title: String, _ symbol: String, _ selected: Bool, action: @escaping () -> Void) {
         self.title = title
         self.symbol = symbol
         self.selected = selected
         self.action = action
+    }
+}
+
+/// Inner edge is narrow; the wide outer edge points away from the Fox hub.
+private struct PetalShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        let midX = rect.midX
+        var path = Path()
+        path.move(to: CGPoint(x: midX, y: rect.maxY))
+        path.addCurve(
+            to: CGPoint(x: rect.maxX * 0.93, y: rect.height * 0.28),
+            control1: CGPoint(x: rect.maxX * 0.78, y: rect.height * 0.82),
+            control2: CGPoint(x: rect.maxX * 1.04, y: rect.height * 0.56)
+        )
+        path.addCurve(
+            to: CGPoint(x: midX, y: 0),
+            control1: CGPoint(x: rect.maxX * 0.82, y: rect.height * 0.03),
+            control2: CGPoint(x: rect.maxX * 0.62, y: 0)
+        )
+        path.addCurve(
+            to: CGPoint(x: rect.width * 0.07, y: rect.height * 0.28),
+            control1: CGPoint(x: rect.width * 0.38, y: 0),
+            control2: CGPoint(x: -rect.width * 0.04, y: rect.height * 0.03)
+        )
+        path.addCurve(
+            to: CGPoint(x: midX, y: rect.maxY),
+            control1: CGPoint(x: -rect.width * 0.04, y: rect.height * 0.56),
+            control2: CGPoint(x: rect.width * 0.22, y: rect.height * 0.82)
+        )
+        return path
     }
 }
