@@ -32,7 +32,9 @@ struct FloatingQuickMenu: View {
     @State private var hoverTask: Task<Void, Never>?
 
     private let rootRadius: CGFloat = 108
-    private let childRadius: CGFloat = 202
+    /// This is measured from the selected parent petal, not from the Fox hub.
+    /// That keeps the child flower compact and lets it cover faded level-one petals.
+    private let childRadius: CGFloat = 112
 
     var body: some View {
         ZStack {
@@ -76,7 +78,9 @@ struct FloatingQuickMenu: View {
     @ViewBuilder private func childArc(for root: FlowerRoot) -> some View {
         let values = options(for: root)
         let parentAngle = rootAngle(FlowerRoot.allCases.firstIndex(of: root) ?? 0)
-        let spread = min(.pi * 0.92, .pi * 0.26 * CGFloat(max(values.count - 1, 1)))
+        let parentX = cos(parentAngle) * rootRadius
+        let parentY = sin(parentAngle) * rootRadius
+        let spread = min(.pi * 0.60, .pi * 0.20 * CGFloat(max(values.count - 1, 1)))
 
         ForEach(Array(values.enumerated()), id: \.element.id) { index, value in
             let childAngle = values.count == 1
@@ -89,7 +93,12 @@ struct FloatingQuickMenu: View {
             }
             .buttonStyle(.plain)
             .frame(width: 96, height: 112)
-            .offset(x: cos(childAngle) * childRadius, y: sin(childAngle) * childRadius)
+            // A secondary flower blooms from the parent: the parent stays where it is,
+            // while its children share one compact radius and may overlay the faded roots.
+            .offset(
+                x: parentX + cos(childAngle) * childRadius,
+                y: parentY + sin(childAngle) * childRadius
+            )
             .accessibilityLabel(value.title)
         }
     }
