@@ -10,7 +10,7 @@ struct FloatingControlView: View {
             ZStack {
                 if state.floatingMenuVisible {
                     FloatingQuickMenu()
-                        .frame(width: min(proxy.size.width - 16, 450), height: min(proxy.size.height - 16, 450))
+                        .frame(width: min(proxy.size.width - 16, 680), height: min(proxy.size.height - 16, 680))
                 }
                 recordButton
                     .position(x: proxy.size.width / 2, y: proxy.size.height / 2)

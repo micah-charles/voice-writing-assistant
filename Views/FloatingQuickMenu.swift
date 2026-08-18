@@ -49,7 +49,7 @@ struct FloatingQuickMenu: View {
                     .transition(.opacity.combined(with: .scale(scale: 0.84)))
             }
         }
-        .frame(width: 470, height: 470)
+        .frame(width: 680, height: 680)
         .animation(.spring(duration: 0.25, bounce: 0.18), value: selectedRoot)
         .onExitCommand { state.closeFloatingMenu() }
     }

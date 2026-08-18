@@ -28,7 +28,9 @@ final class FloatingControlPanelController {
     func hide() { panel.orderOut(nil) }
 
     func setMenuVisible(_ visible: Bool) {
-        let targetSize = visible ? NSSize(width: 500, height: 500) : NSSize(width: 70, height: 70)
+        // A seven-item child arc reaches about 320 pt from the Fox hub. Keep the
+        // panel larger than that radius so it never clips labels at its own edge.
+        let targetSize = visible ? NSSize(width: 700, height: 700) : NSSize(width: 70, height: 70)
         let previous = panel.frame
         let frame = NSRect(x: previous.maxX - targetSize.width, y: previous.maxY - targetSize.height, width: targetSize.width, height: targetSize.height)
         panel.setFrame(frame, display: true, animate: true)
