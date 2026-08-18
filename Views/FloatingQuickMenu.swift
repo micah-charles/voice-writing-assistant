@@ -32,9 +32,6 @@ struct FloatingQuickMenu: View {
     @State private var hoverTask: Task<Void, Never>?
 
     private let rootRadius: CGFloat = 108
-    /// This is measured from the selected parent petal, not from the Fox hub.
-    /// That keeps the child flower compact and lets it cover faded level-one petals.
-    private let childRadius: CGFloat = 112
 
     var body: some View {
         ZStack {
@@ -80,7 +77,8 @@ struct FloatingQuickMenu: View {
         let parentAngle = rootAngle(FlowerRoot.allCases.firstIndex(of: root) ?? 0)
         let parentX = cos(parentAngle) * rootRadius
         let parentY = sin(parentAngle) * rootRadius
-        let spread = min(.pi * 0.60, .pi * 0.20 * CGFloat(max(values.count - 1, 1)))
+        let spread = childArcSpan(for: values.count)
+        let secondaryRadius = childRadius(for: values.count, span: spread)
 
         ForEach(Array(values.enumerated()), id: \.element.id) { index, value in
             let childAngle = values.count == 1
@@ -92,12 +90,12 @@ struct FloatingQuickMenu: View {
                     .background(petalSurface(tint: root.tint, selected: value.selected, angle: childAngle))
             }
             .buttonStyle(.plain)
-            .frame(width: 96, height: 112)
+            .frame(width: 78, height: 92)
             // A secondary flower blooms from the parent: the parent stays where it is,
             // while its children share one compact radius and may overlay the faded roots.
             .offset(
-                x: parentX + cos(childAngle) * childRadius,
-                y: parentY + sin(childAngle) * childRadius
+                x: parentX + cos(childAngle) * secondaryRadius,
+                y: parentY + sin(childAngle) * secondaryRadius
             )
             .accessibilityLabel(value.title)
         }
@@ -126,6 +124,28 @@ struct FloatingQuickMenu: View {
 
     private func rootAngle(_ index: Int) -> CGFloat {
         CGFloat(index) * (.pi * 2 / CGFloat(FlowerRoot.allCases.count)) - .pi / 2
+    }
+
+    /// Each child count has a stable outward fan. The background is intentionally
+    /// ignored; this only spaces level-two petals from each other.
+    private func childArcSpan(for count: Int) -> CGFloat {
+        switch count {
+        case ...1: 0
+        case 2: .pi * 0.44       // 80°
+        case 3: .pi * 0.67       // 120°
+        case 4: .pi * 0.78       // 140°
+        case 5: .pi * 0.89       // 160°
+        case 6: .pi             // 180°
+        default: .pi * 1.11      // 200° for writing styles and longer lists
+        }
+    }
+
+    private func childRadius(for count: Int, span: CGFloat) -> CGFloat {
+        guard count > 1 else { return 108 }
+        let angularStep = span / CGFloat(count - 1)
+        // Chord length >= 88 pt gives every icon and two-line label a protected area.
+        let collisionFreeRadius = 88 / (2 * sin(angularStep / 2))
+        return max(118, collisionFreeRadius + 8)
     }
 
     private func select(_ root: FlowerRoot) {
