@@ -6,18 +6,22 @@ struct FloatingControlView: View {
     @State private var pulse = false
 
     var body: some View {
-        HStack(spacing: 10) {
-            recordButton
-            if state.floatingMenuVisible { Divider().frame(height: 250); FloatingQuickMenu() }
+        GeometryReader { proxy in
+            ZStack {
+                if state.floatingMenuVisible {
+                    FloatingQuickMenu()
+                        .frame(width: min(proxy.size.width - 16, 450), height: min(proxy.size.height - 16, 450))
+                }
+                recordButton
+                    .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+            }
         }
-        .padding(6)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
         .onHover { state.setFloatingMenuHover($0) }
     }
 
     private var recordButton: some View {
         ZStack(alignment: .topTrailing) {
-            Circle().fill(state.isRecording ? Color.red.opacity(0.28) : Color.orange.opacity(0.22))
+            Circle().fill(state.isRecording ? Color.red.opacity(0.28) : Color.orange.opacity(0.12))
                 .scaleEffect(state.isRecording && pulse ? 1.18 : 1)
             Image("FoxR").resizable().scaledToFit().padding(2)
             Image(systemName: state.floatingStatusSymbol)

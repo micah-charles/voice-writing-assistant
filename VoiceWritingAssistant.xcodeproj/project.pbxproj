@@ -11,6 +11,7 @@
 		A018 /* Paste */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (); explicitFileTypes = {}; explicitFolders = (); path = Paste; sourceTree = "<group>"; };
 		A019 /* Shortcuts */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (); explicitFileTypes = {}; explicitFolders = (); path = Shortcuts; sourceTree = "<group>"; };
 		A020 /* Views */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (); explicitFileTypes = {}; explicitFolders = (); path = Views; sourceTree = "<group>"; };
+		A044 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A024 /* Tests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (); explicitFileTypes = {}; explicitFolders = (); path = Tests; sourceTree = "<group>"; };
 		A038 /* STT */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (); explicitFileTypes = {}; explicitFolders = (); path = STT; sourceTree = "<group>"; };
 		A039 /* Context */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (); explicitFileTypes = {}; explicitFolders = (); path = Context; sourceTree = "<group>"; };
@@ -20,7 +21,7 @@
 		A043 /* Utilities */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (); explicitFileTypes = {}; explicitFolders = (); path = Utilities; sourceTree = "<group>"; };
 		A025 /* VoiceWritingAssistantTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = VoiceWritingAssistantTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A003 /* Products */ = {isa = PBXGroup; children = (A001 /* App */, A025 /* VoiceWritingAssistantTests.xctest */,); name = Products; sourceTree = "<group>"; };
-		A004 /* Main group */ = {isa = PBXGroup; children = (A002 /* App */, A016 /* Models */, A017 /* Audio */, A038 /* STT */, A039 /* Context */, A040 /* Processing */, A041 /* Language */, A018 /* Paste */, A019 /* Shortcuts */, A042 /* Storage */, A043 /* Utilities */, A020 /* Views */, A024 /* Tests */, A003 /* Products */); sourceTree = "<group>"; };
+		A004 /* Main group */ = {isa = PBXGroup; children = (A002 /* App */, A016 /* Models */, A017 /* Audio */, A038 /* STT */, A039 /* Context */, A040 /* Processing */, A041 /* Language */, A018 /* Paste */, A019 /* Shortcuts */, A042 /* Storage */, A043 /* Utilities */, A020 /* Views */, A044 /* Assets.xcassets */, A024 /* Tests */, A003 /* Products */); sourceTree = "<group>"; };
 		A005 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		A006 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (A021 /* WhisperKit in Frameworks */, A035 /* FluidAudio in Frameworks */,); runOnlyForDeploymentPostprocessing = 0; };
 		A021 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = A022 /* WhisperKit */; };
@@ -29,7 +30,8 @@
 		A035 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = A036 /* FluidAudio */; };
 		A036 /* FluidAudio */ = {isa = XCSwiftPackageProductDependency; package = A037 /* XCRemoteSwiftPackageReference \"FluidAudio\" */; productName = FluidAudio; };
 		A037 /* XCRemoteSwiftPackageReference \"FluidAudio\" */ = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/FluidInference/FluidAudio.git"; requirement = { kind = upToNextMajorVersion; minimumVersion = 0.12.4; }; };
-		A007 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		A045 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A044 /* Assets.xcassets */; };
+		A007 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A045 /* Assets.xcassets in Resources */,); runOnlyForDeploymentPostprocessing = 0; };
 		A026 /* Test Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		A027 /* Test Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		A008 /* Target */ = {isa = PBXNativeTarget; buildConfigurationList = A009; buildPhases = (A005, A006, A007); buildRules = (); dependencies = (); fileSystemSynchronizedGroups = (A002, A016, A017, A038, A039, A040, A041, A018, A019, A042, A043, A020); packageProductDependencies = (A022 /* WhisperKit */, A036 /* FluidAudio */,); name = VoiceWritingAssistant; productName = VoiceWritingAssistant; productReference = A001; productType = "com.apple.product-type.application"; };
