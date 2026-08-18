@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voice-writing-assistant.local/schemas/app-profile.schema.json",
+  "title": "Voice Writing Assistant application profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "match", "mode", "outputLanguage", "style", "autoPaste", "autoSend"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["applicationNames"],
+      "properties": {
+        "applicationNames": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
+        "bundleIdentifiers": { "type": "array", "items": { "type": "string", "minLength": 1 }, "default": [] },
+        "executableNames": { "type": "array", "items": { "type": "string", "minLength": 1 }, "default": [] }
+      }
+    },
+    "mode": { "enum": ["general", "email", "chat", "technical", "document", "note", "selectedTextTransform"] },
+    "outputLanguage": { "enum": ["preserveSpokenLanguage", "english", "cantoneseWritten", "formalTraditionalChinese"] },
+    "style": { "enum": ["automatic", "faithful", "professional", "conversational", "technical", "structured", "concise"] },
+    "autoPaste": { "type": "boolean" },
+    "autoSend": { "type": "boolean", "default": false }
+  }
+}

@@ -19,3 +19,13 @@ xcuserdata/
 config.local.*
 .env
 .env.*
+
+# .NET / Windows build output
+windows/**/bin/
+windows/**/obj/
+windows/.vs/
+*.user
+*.suo
+
+tools/**/bin/
+tools/**/obj/

@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "profiles": [
+    {
+      "id": "email",
+      "match": {
+        "applicationNames": ["Outlook", "Mail", "Gmail"],
+        "bundleIdentifiers": ["com.apple.mail", "com.microsoft.Outlook"],
+        "executableNames": ["olk.exe", "outlook.exe"]
+      },
+      "mode": "email",
+      "outputLanguage": "preserveSpokenLanguage",
+      "style": "professional",
+      "autoPaste": true,
+      "autoSend": false
+    },
+    {
+      "id": "chat",
+      "match": {
+        "applicationNames": ["Teams", "Slack", "Messages", "Discord", "WhatsApp"],
+        "bundleIdentifiers": ["com.microsoft.teams2", "com.tinyspeck.slackmacgap", "com.apple.MobileSMS"],
+        "executableNames": ["ms-teams.exe", "slack.exe", "discord.exe", "whatsapp.exe"]
+      },
+      "mode": "chat",
+      "outputLanguage": "preserveSpokenLanguage",
+      "style": "conversational",
+      "autoPaste": true,
+      "autoSend": false
+    },
+    {
+      "id": "technical",
+      "match": {
+        "applicationNames": ["Visual Studio Code", "Visual Studio", "Xcode", "Terminal", "Codex"],
+        "bundleIdentifiers": ["com.microsoft.VSCode", "com.apple.dt.Xcode", "com.apple.Terminal"],
+        "executableNames": ["code.exe", "devenv.exe", "windowsterminal.exe", "powershell.exe", "pwsh.exe"]
+      },
+      "mode": "technical",
+      "outputLanguage": "preserveSpokenLanguage",
+      "style": "technical",
+      "autoPaste": true,
+      "autoSend": false
+    },
+    {
+      "id": "document",
+      "match": {
+        "applicationNames": ["Word", "Pages", "Google Docs"],
+        "bundleIdentifiers": ["com.microsoft.Word", "com.apple.iWork.Pages"],
+        "executableNames": ["winword.exe"]
+      },
+      "mode": "document",
+      "outputLanguage": "preserveSpokenLanguage",
+      "style": "automatic",
+      "autoPaste": true,
+      "autoSend": false
+    },
+    {
+      "id": "note",
+      "match": {
+        "applicationNames": ["Notes", "Obsidian", "Notion"],
+        "bundleIdentifiers": ["com.apple.Notes", "md.obsidian", "notion.id"],
+        "executableNames": ["obsidian.exe", "notion.exe"]
+      },
+      "mode": "note",
+      "outputLanguage": "preserveSpokenLanguage",
+      "style": "concise",
+      "autoPaste": true,
+      "autoSend": false
+    }
+  ]
+}
