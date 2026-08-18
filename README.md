@@ -1,6 +1,8 @@
 # Voice Writing Assistant
 
-Voice Writing Assistant is a native, local-first macOS voice-writing assistant. Hold a global shortcut, dictate, and it transcribes locally, captures only the enabled context, cleans text with Codex CLI/Ollama/rules, normalises terminology, and pastes into the prior app. No OpenAI API key or background Python server is used.
+Voice Writing Assistant is a native, local-first macOS and Windows voice-writing assistant. Hold a global shortcut, dictate, and it transcribes locally, captures only the enabled context, cleans text with Codex CLI/Ollama/rules, normalises terminology, and pastes into the prior app. No OpenAI API key or background Python server is used.
+
+The native Windows implementation lives under [`windows/`](windows/README.md). It shares serialised product semantics from [`shared/`](shared/default-app-profiles.json) while keeping audio, shortcuts, context capture, paste and UI platform-native.
 
 ## Features
 
